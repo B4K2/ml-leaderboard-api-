@@ -10,6 +10,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.permissions import IsAuthenticated 
 import random
 
 from .serializers import (
@@ -18,6 +19,7 @@ from .serializers import (
     PasswordResetRequestSerializer,
     PasswordResetConfirmSerializer,
     MyTokenObtainPairSerializer,
+    UserProfileSerializer
 )
 
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -163,3 +165,10 @@ class PasswordResetConfirmView(generics.GenericAPIView):
             return Response({"message": "Password has been reset successfully."}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "Invalid token or user ID."}, status=status.HTTP_400_BAD_REQUEST)
+        
+class UserProfileView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated] # This locks the view
+    serializer_class = UserProfileSerializer
+
+    def get_object(self):
+        return self.request.user

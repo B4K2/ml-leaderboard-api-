@@ -105,3 +105,8 @@ class MyTokenObtainPairSerializer(serializers.Serializer):
 
         # If user not found or password is wrong, raise the generic error
         raise serializers.ValidationError("No active account found with the given credentials")
+    
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email']
