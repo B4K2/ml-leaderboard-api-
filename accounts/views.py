@@ -11,6 +11,8 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated 
+from rest_framework.views import APIView
+from tasks.models import Submission
 import random
 
 from .serializers import (
@@ -21,6 +23,8 @@ from .serializers import (
     MyTokenObtainPairSerializer,
     UserProfileSerializer
 )
+
+FACE_EMOJIS = ['😀', '😎', '😊', '🥳', '😇', '🤓', '🤩', '😁', '😂', '🙂']
 
 class MyTokenObtainPairView(TokenObtainPairView):
     """
@@ -99,6 +103,7 @@ class VerifyOTPView(generics.GenericAPIView):
             )
             user.is_active = True
             user.email_verified = True
+            user.avatar_emoji = random.choice(FACE_EMOJIS)
             user.save()
         except Exception as e:
             # This could happen in a rare race condition
@@ -172,3 +177,20 @@ class UserProfileView(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+    
+class UserStatsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        
+        # Calculate Total Submissions
+        total_submissions = Submission.objects.filter(user=user).count()
+        
+        stats_data = {
+            'total_submissions': total_submissions,
+            'current_rank': 'N/A', # Placeholder
+            'best_rank': 'N/A'     # Placeholder
+        }
+        
+        return Response(stats_data, status=status.HTTP_200_OK)

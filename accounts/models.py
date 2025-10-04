@@ -8,6 +8,8 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     email_verified = models.BooleanField(default=False)
 
+    avatar_emoji = models.CharField(max_length=5, blank=True, null=True)
+
     # Use email as the username field
     USERNAME_FIELD = 'email'
     # 'username' is still required for Django's internal workings (like createsuperuser)
